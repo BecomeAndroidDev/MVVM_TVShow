@@ -1,17 +1,26 @@
 package com.hfad.tvshow.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.viewpager2.widget.ViewPager2;
 
 import android.content.Context;
 import android.content.Intent;
+import android.media.Image;
 import android.os.Bundle;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.hfad.tvshow.R;
+import com.hfad.tvshow.adapters.ImageSliderAdapter;
 import com.hfad.tvshow.databinding.ActivityTvshowDetailsBinding;
 import com.hfad.tvshow.models.TVShow;
+import com.hfad.tvshow.models.TVShowDetails;
 import com.hfad.tvshow.responses.TVShowDetailsResponse;
 import com.hfad.tvshow.viewmodels.TVShowDetailsViewModel;
 
@@ -47,10 +56,65 @@ public class TVShowDetailsActivity extends AppCompatActivity {
             @Override
             public void onChanged(TVShowDetailsResponse tvShowDetailsResponse) {
                 mBinding.setIsLoading(false);
-                Toast.makeText(getApplicationContext(),
-                        tvShowDetailsResponse.getTvShowDetails().getUrl(), Toast.LENGTH_SHORT).show();
+                TVShowDetails tvShowDetails = tvShowDetailsResponse.getTvShowDetails();
+                if(tvShowDetails != null) {
+                    if(tvShowDetails.getPictures() != null) {
+                        loadImageSlider(tvShowDetails.getPictures());
+                    }
+                }
             }
         });
+    }
+
+    private void loadImageSlider(String[] sliderImages) {
+        mBinding.sliderViewpager.setOffscreenPageLimit(1);
+        mBinding.sliderViewpager.setAdapter(new ImageSliderAdapter(sliderImages));
+        mBinding.sliderViewpager.setVisibility(View.VISIBLE);
+        mBinding.viewFadingEdge.setVisibility(View.VISIBLE);
+        mBinding.viewFadingEdge.setVisibility(View.VISIBLE);
+        setupSliderIndicator(sliderImages.length);
+        mBinding.sliderViewpager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                super.onPageSelected(position);
+                setCurrentSliderIndicator(position);
+            }
+        });
+    }
+
+    private void setupSliderIndicator(int count) {
+        ImageView[] indicators = new ImageView[count];
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        layoutParams.setMargins(8, 0, 8,0);
+        for(int i=0; i < indicators.length; i++) {
+            indicators[i] = new ImageView(getApplicationContext());
+            indicators[i].setImageDrawable(ContextCompat.getDrawable(
+                getApplicationContext(), R.drawable.background_slider_indicator_inactive
+            ));
+            indicators[i].setLayoutParams(layoutParams);
+            mBinding.layoutSliderIndicator.addView(indicators[i]);
+        }
+        mBinding.layoutSliderIndicator.setVisibility(View.VISIBLE);
+        setCurrentSliderIndicator(0);
+    }
+
+    private void setCurrentSliderIndicator(int position) {
+        int childCount = mBinding.layoutSliderIndicator.getChildCount();
+        for(int i=0; i < childCount; i++) {
+            ImageView imageView = (ImageView) mBinding.layoutSliderIndicator.getChildAt(i);
+            if(i == position) {
+                imageView.setImageDrawable(ContextCompat.getDrawable(
+                        getApplicationContext(), R.drawable.background_slider_indicator_active
+                ));
+            }
+            else {
+                imageView.setImageDrawable(ContextCompat.getDrawable(
+                        getApplicationContext(), R.drawable.background_slider_indicator_inactive
+                ));
+            }
+        }
     }
 
     public static Intent newIntent(Context context, TVShow tvShow) {
