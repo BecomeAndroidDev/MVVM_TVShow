@@ -1,4 +1,5 @@
 package com.hfad.tvshow.activities;
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 
@@ -10,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.hfad.tvshow.R;
 import com.hfad.tvshow.adapters.TVShowsAdapter;
 import com.hfad.tvshow.databinding.ActivityMainBinding;
+import com.hfad.tvshow.listeners.TVShowsListener;
 import com.hfad.tvshow.models.TVShow;
 import com.hfad.tvshow.responses.TVShowResponse;
 import com.hfad.tvshow.viewmodels.MostPopularTVShowsViewModel;
@@ -17,7 +19,8 @@ import com.hfad.tvshow.viewmodels.MostPopularTVShowsViewModel;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity
+    implements TVShowsListener {
     private ActivityMainBinding mainBinding;
     private MostPopularTVShowsViewModel viewModel;
     private List<TVShow> tvShows = new ArrayList<>();
@@ -36,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
         mainBinding.tvshowRecyclerview.setLayoutManager(new LinearLayoutManager(this));
         mainBinding.tvshowRecyclerview.setHasFixedSize(true);
 
-        tvShowsAdapter = new TVShowsAdapter(tvShows);
+        tvShowsAdapter = new TVShowsAdapter(tvShows, this);
         mainBinding.tvshowRecyclerview.setAdapter(tvShowsAdapter);
 
         viewModel = new ViewModelProvider(this).get(MostPopularTVShowsViewModel.class);
@@ -58,5 +61,11 @@ public class MainActivity extends AppCompatActivity {
             }
 
         });
+    }
+
+    @Override
+    public void onTVShowsClicked(TVShow tvShow) {
+        Intent intent = TVShowDetailsActivity.newIntent(MainActivity.this, tvShow);
+        startActivity(intent);
     }
 }

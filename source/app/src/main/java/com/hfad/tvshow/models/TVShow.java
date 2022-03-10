@@ -2,10 +2,12 @@ package com.hfad.tvshow.models;
 
 import com.google.gson.annotations.SerializedName;
 
-public class TVShow {
+import java.io.Serializable;
+
+public class TVShow{
 
     @SerializedName("id")
-    private int id;
+    private String id;
 
     @SerializedName("name")
     private String name;
@@ -25,11 +27,11 @@ public class TVShow {
     @SerializedName("image_thumbnail_path")
     private String imageThumbnailPath;
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
