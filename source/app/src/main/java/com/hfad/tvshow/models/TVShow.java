@@ -1,11 +1,18 @@
 package com.hfad.tvshow.models;
 
+import androidx.annotation.NonNull;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
 
-public class TVShow{
+@Entity(tableName = "tvShows")
+public class TVShow implements Serializable{
 
+    @PrimaryKey
+    @NonNull
     @SerializedName("id")
     private String id;
 
