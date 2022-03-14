@@ -1,6 +1,7 @@
 package com.hfad.tvshow.activities;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -43,6 +44,11 @@ public class MainActivity extends AppCompatActivity
         mainBinding.tvshowRecyclerview.setAdapter(tvShowsAdapter);
 
         viewModel = new ViewModelProvider(this).get(MostPopularTVShowsViewModel.class);
+
+        mainBinding.imgWatchlist.setOnClickListener(view -> {
+            startActivity(new Intent(MainActivity.this, WatchlistActivity.class));
+        });
+
         getMostPopularTVShows(0);
     }
 
@@ -64,7 +70,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onTVShowsClicked(TVShow tvShow) {
+    public void onTVShowClicked(TVShow tvShow) {
         Intent intent = TVShowDetailsActivity.newIntent(MainActivity.this, tvShow);
         startActivity(intent);
     }

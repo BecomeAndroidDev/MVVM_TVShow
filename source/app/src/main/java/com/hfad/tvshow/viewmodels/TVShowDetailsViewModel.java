@@ -15,6 +15,7 @@ import com.hfad.tvshow.responses.TVShowDetailsResponse;
 import com.hfad.tvshow.responses.TVShowResponse;
 
 import io.reactivex.Completable;
+import io.reactivex.Flowable;
 
 public class TVShowDetailsViewModel extends AndroidViewModel {
     private TVShowDetailsRepository tvShowDetailsRepository;
@@ -32,5 +33,13 @@ public class TVShowDetailsViewModel extends AndroidViewModel {
 
     public Completable addToWatchList(TVShow tvShow) {
         return tvShowsDatabase.tvShowDAO().addToWatchList(tvShow);
+    }
+
+    public Flowable<TVShow> getTVShowFromWatchlist(String tvShowId) {
+        return tvShowsDatabase.tvShowDAO().getTVShowFromWatchlist(tvShowId);
+    }
+
+    public Completable removeTVShowFromWatchList(TVShow tvShow) {
+        return tvShowsDatabase.tvShowDAO().removeFromWatchList(tvShow);
     }
 }
