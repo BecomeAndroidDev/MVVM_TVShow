@@ -13,6 +13,9 @@
         android:theme="@style/Theme.TVShow"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".activities.SearchActivity"
+            android:exported="false" />
+        <activity
             android:name=".activities.WatchlistActivity"
             android:exported="false" />
         <activity

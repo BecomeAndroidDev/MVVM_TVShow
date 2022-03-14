@@ -4,10 +4,12 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.hfad.tvshow.R;
 import com.hfad.tvshow.adapters.TVShowsAdapter;
@@ -26,6 +28,8 @@ public class MainActivity extends AppCompatActivity
     private MostPopularTVShowsViewModel viewModel;
     private List<TVShow> tvShows = new ArrayList<>();
     private TVShowsAdapter tvShowsAdapter;
+    private int currentPage = 1;
+    private int totalAvailablePage = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,29 +49,67 @@ public class MainActivity extends AppCompatActivity
 
         viewModel = new ViewModelProvider(this).get(MostPopularTVShowsViewModel.class);
 
+        mainBinding.tvshowRecyclerview.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                if(mainBinding.tvshowRecyclerview.canScrollVertically(1)) {
+                    if(currentPage <= totalAvailablePage) {
+                        currentPage+=1;
+                        getMostPopularTVShows();
+                    }
+                }
+            }
+        });
+
         mainBinding.imgWatchlist.setOnClickListener(view -> {
             startActivity(new Intent(MainActivity.this, WatchlistActivity.class));
         });
 
-        getMostPopularTVShows(0);
+        mainBinding.imgSearch.setOnClickListener(view -> {
+            startActivity(new Intent(MainActivity.this, SearchActivity.class));
+        });
+
+        getMostPopularTVShows();
     }
 
-    private void getMostPopularTVShows(int page) {
-        mainBinding.setIsLoading(true);
-        viewModel.getMostPopularTVShows(page).observe(this, new Observer<TVShowResponse>() {
+    private void getMostPopularTVShows() {
+        toggleLoading();
+        viewModel.getMostPopularTVShows(currentPage).observe(this, new Observer<TVShowResponse>() {
 
             @Override
             public void onChanged(TVShowResponse tvShowResponse) {
-                mainBinding.setIsLoading(false);
+                toggleLoading();
                 if(tvShowResponse!=null) {
-                    tvShows.addAll(tvShowResponse.getTvShows());
-                    tvShowsAdapter.setTvShows(tvShows);
-                    tvShowsAdapter.notifyDataSetChanged();
+                    totalAvailablePage = tvShowResponse.getTotalPages();
+                    if(tvShowResponse.getTvShows()!=null) {
+                        int oldCount = tvShows.size();
+                        tvShows.addAll(tvShowResponse.getTvShows());
+                        tvShowsAdapter.setTvShows(tvShows);
+                        tvShowsAdapter.notifyItemRangeInserted(oldCount, tvShows.size());
+                    }
                 }
             }
 
         });
     }
+
+    private void toggleLoading() {
+        if(currentPage == 1) {
+            if(mainBinding.getIsLoading() != null && mainBinding.getIsLoading()) {
+                mainBinding.setIsLoading(false);
+            } else {
+                mainBinding.setIsLoading(true);
+            }
+        } else {
+            if(mainBinding.getIsLoadingMore() != null && mainBinding.getIsLoadingMore()) {
+                mainBinding.setIsLoadingMore(false);
+            } else {
+                mainBinding.setIsLoadingMore(true);
+            }
+        }
+    }
+
 
     @Override
     public void onTVShowClicked(TVShow tvShow) {
